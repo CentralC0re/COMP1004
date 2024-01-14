@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Password Manager</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<link rel="stylesheet" href="PManStyles.css">
+	<script src="PWordFunct.js"></script>
+</head>
+<body>
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+	<div class="container-fluid bg-dark text-white">
+		<h1>Password Manager</h1>
+		
+		<form>
+			<div class="container py-3">
+				<h4>Please Sign In</h4>
+				<label class="form-label" for="SignInUser">Username</label>
+				<input type="text" class="form-control" id="SignInUser" placeholder="Username">
+				
+				<label class="form-label" for="SignInPword">Password</label>
+				<input type="password" class="form-control" id="SignInPword" placeholder="Password">
+				
+				<button type="button" class="btn btn-primary">Sign In</button> 
+				<button type="button" class="btn btn-secondary">Sign Out</button>
+				<!-- A password reset would go here, but it's not viable while maintaining security. -->
+				<!-- (No way to email reset, would have to do it locally) -->
+			</div>
+		</form>
+		
+		<!-- TEMPLATE FOR PASSWORDS, hidden -->
+		<div class="accordion" id="myAccordion">
+			<div class="accordion-item">
+				<h2 class="accordion-header" id="headingOne">
+					<button type="button" class="accordion-button collapsed bg-dark text-white" data-bs-toggle="collapse" data-bs-target="#collapseOne">Website 1</button>									
+				</h2>
+				<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#myAccordion">
+					<div class="card-body bg-dark text-white">
+						<form>
+							<div class="row">
+							
+								<div class="col-md">
+									<label class="form-label" for="username">Username:</label>
+									<input type="text" class="form-control" id="username" placeholder="USERNAME">
+								</div>
+								
+								<div class="col-md">
+									<label class="form-label" for="password">Password:</label>
+									<!-- Password type obfuscates text. It cannot be copied -->
+									<!-- Use JS to switch type to text. -->
+									<input type="password" class="form-control" id="password" placeholder="PASSWORD">
+								</div>
+								
+								<div class="col-md-2">
+								<!-- Show password checkbox triggers function to set password to text-->
+								<label><input type="checkbox" value="">Show Password</label>
+								<button type="button" class="btn btn-secondary">Copy Password</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</body>
+</html>
