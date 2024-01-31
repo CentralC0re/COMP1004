@@ -24,10 +24,12 @@
 				<label class="form-label" for="SignInPword">Password</label>
 				<input type="password" class="form-control" id="SignInPword" placeholder="Password">
 				
-				<button type="button" class="btn btn-primary">Sign In</button> 
-				<button type="button" class="btn btn-secondary">Sign Out</button>
+				<button type="button" class="btn btn-primary" onclick="openFile()">Sign In</button> 
+				<button type="button" class="btn btn-secondary" onclick="signOut()">Sign Out</button>
 				<!-- A password reset would go here, but it's not viable while maintaining security. -->
 				<!-- (No way to email reset, would have to do it locally) -->
+
+				<span hidden><input type="file" id="fileSelect"></span>
 			</div>
 		</form>
 		
