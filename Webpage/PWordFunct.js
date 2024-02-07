@@ -1,7 +1,7 @@
 // Listeners go up here
 window.addEventListener("DOMContentLoaded", (event) => {	// Waits for DOM load
     const fileSelect = document.getElementById("fileSelect");
-    fileSelect.addEventListener("change",signIn);
+    fileSelect.addEventListener("change",getFile);
 });
 
 function openFile()     // Triggers file selection on sign-in click
@@ -9,35 +9,72 @@ function openFile()     // Triggers file selection on sign-in click
     fileSelect.click();
 }
 
-function signIn()
+function getFile()
 {
-    console.log('signIn Called');
+    let content = "";
+    const [file] = document.querySelector("input[type=file]").files;    // Better than the deprecated
+    const reader = new FileReader();                                    // option.
+  
+    reader.addEventListener(
+      "load",
+      () => {
+        content = reader.result;        // content contains all of file, no formatting
+        signIn(content);
+      },
+      false,
+    );
+  
+    if (file) { // Was a file selected?
+      reader.readAsText(file);
+    }
+    // No need for else error - user may have cancelled
+}
 
-    files = event.target.files;     // event is deprecated, not sure how else to do this
-    const reader = new FileReader();
-    // Continue from https://web.dev/articles/read-files
+function signIn(content)
+{
+    const splitLineExp = new RegExp("\n");
+    var numLines = 0;
+    for (let i = 0; i < content.length; i++)        // Very inefficient
+    {
+        if (content[i] == '\n')
+        {
+            numLines++;
+        }
+    }
+
+    var fileLines = new Array(numLines+1);          // numLines is 1 fewer than total
+
+    fileLines = content.split(splitLineExp);        // Splits into individual lines.
+
+    const uNameExpress = new RegExp("\"Username\":")
+    // Login username is always on line 2 [1]
+
+    let loadUName = "";
+    let loadPWord = "password";
+
+    {   // Make this a function?
+        var temp = fileLines[1];
+        var tArr = temp.split(" ");     // Splits on space, right side is to end of line (includes username)
+        tArr = tArr[1].split(",");      // Splits on comma, left side is username (make symbols illegal)
+        loadUName = tArr[0];
+    }
+
+    console.log(loadUName);            // Valid output
 
     // Textboxes are: SignInUser and SignInPword
     // Almost certainly requires function to wait for DOM load.
-    var UName = document.getElementById("SignInUser");
-    var PWord = document.getElementById("SignInPword");
+    var UName = document.getElementById("SignInUser").nodeValue;    // These are null.
+    var PWord = document.getElementById("SignInPword").nodeValue;   // Input is probably bad, figure it out.
 
-    /*var file;             // JSON does not work unless hosted, CORS blocks file access
-    fetch("./passwords.json")
-        .then(res => {
-            if (!res.ok) {
-                    throw new Error('HTTP error! Status: $(res.status)');   // This should never run, given it's clientside
-            }
-            file = res.json();
-        })
-        .then((data) =>
-            console.log(data))
-        .catch((error) =>
-            console.error("Unable to retrieve passwords"));
 
-    console.log(file);  // TEMP
-    */
-
+    if (UName == loadUName && PWord == loadPWord)
+    {
+        // Sign-In success
+    }
+    else
+    {
+        console.error("INVALID CREDENTIALS")    // Make this a paragraph
+    }
 }
 
 function signOut()
