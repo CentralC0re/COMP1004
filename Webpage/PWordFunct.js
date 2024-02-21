@@ -30,6 +30,16 @@ function getFile()
     // No need for else error - user may have cancelled
 }
 
+function extractDetails(line)   // Gets the value from an identifier
+{
+    tArr = line.split(" ");     // Splits on space, right side is to end of line (includes value)
+    tArr = tArr[1].split(",");  // Splits on comma, left side is value identifier (make symbols illegal)
+    tArr[0] = tArr[0].replace("\"", "");     // Loaded value has an additional pair of quotes
+    tArr[0] = tArr[0].replace("\"", "");    // replaceAll is external(?), cannot be used
+    tArr[0] = tArr[0].replace("\r", "");    // Last line has \r, if password this must be eliminated.
+    return tArr[0];
+}
+
 function signIn(content)
 {
     const splitLineExp = new RegExp("\n");
@@ -46,25 +56,22 @@ function signIn(content)
 
     fileLines = content.split(splitLineExp);        // Splits into individual lines.
 
-    const uNameExpress = new RegExp("\"Username\":")
     // Login username is always on line 2 [1]
 
-    let loadUName = "";
-    let loadPWord = "password";
+    let loadUName = "u";
+    let loadPWord = "p";
 
-    {   // Make this a function?
-        var temp = fileLines[1];
-        var tArr = temp.split(" ");     // Splits on space, right side is to end of line (includes username)
-        tArr = tArr[1].split(",");      // Splits on comma, left side is username (make symbols illegal)
-        loadUName = tArr[0];
-    }
+    loadUName = extractDetails(fileLines[1]);
+    loadPWord = extractDetails(fileLines[2]);
+    
 
     console.log(loadUName);            // Valid output
+    console.log(loadPWord);
 
     // Textboxes are: SignInUser and SignInPword
     // Almost certainly requires function to wait for DOM load.
-    var UName = document.getElementById("SignInUser").nodeValue;    // These are null.
-    var PWord = document.getElementById("SignInPword").nodeValue;   // Input is probably bad, figure it out.
+    var UName = document.getElementById("SignInUser").value;
+    var PWord = document.getElementById("SignInPword").value;
 
 
     if (UName == loadUName && PWord == loadPWord)
