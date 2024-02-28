@@ -34,12 +34,13 @@
 		</form>
 		
 		<!-- TEMPLATE FOR PASSWORDS, hidden -->
-		<div class="accordion" id="myAccordion">
+		<span hidden>
+		<div class="accordion" id="containerTemplate">
 			<div class="accordion-item">
 				<h2 class="accordion-header" id="headingOne">
 					<button type="button" class="accordion-button collapsed bg-dark text-white" data-bs-toggle="collapse" data-bs-target="#collapseOne">Website 1</button>									
 				</h2>
-				<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#myAccordion">
+				<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#containerTemplate">
 					<div class="card-body bg-dark text-white">
 						<form>
 							<div class="row">
@@ -67,6 +68,7 @@
 				</div>
 			</div>
 		</div>
+		</span>
 		
 	</div>
 </body>

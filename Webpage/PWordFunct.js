@@ -76,7 +76,33 @@ function signIn(content)
 
     if (UName == loadUName && PWord == loadPWord)
     {
-        // Sign-In success
+        /* Sign-In success
+        Display message(?) and load other values
+        Need to:
+            Figure out where EOF is
+            Load up to EOF (new function or loop extractDetails?)
+        */
+       // Format: "siteNo": {"username":"UNAME","password":"PWORD"},
+
+       var splitLines;
+       var siteName;
+       var siteUName;
+       var sitePWord;
+       for (let i = 3; i < fileLines.length; i++)   // for all lines, take data.
+       {
+            if (fileLines[i].search("{") != -1)
+            {
+                splitLines = fileLines[i].split(":");  // siteNo, username tag, username, etc are now separate
+                siteName = splitLines[0];           // Layout is consistent, provided there are no ":"'s
+                siteUName = splitLines[2];
+                sitePWord = splitLines[4];
+                console.log(siteName);
+                console.log(siteUName);
+                console.log(sitePWord);
+
+                // COPY AND SET TEMPLATE HERE
+            }
+       }
     }
     else
     {
