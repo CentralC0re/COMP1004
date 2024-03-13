@@ -29,46 +29,49 @@
 				<!-- A password reset would go here, but it's not viable while maintaining security. -->
 				<!-- (No way to email reset, would have to do it locally) -->
 
+				<p hidden id="CredError">ERROR: Invalid Credentials</p>
 				<span hidden><input type="file" id="fileSelect" accept=".json"></span>
 			</div>
 		</form>
 		
 		<!-- TEMPLATE FOR PASSWORDS, hidden -->
-		<span hidden>
-		<div class="accordion" id="containerTemplate">
-			<div class="accordion-item">
-				<h2 class="accordion-header" id="headingOne">
-					<button type="button" class="accordion-button collapsed bg-dark text-white" data-bs-toggle="collapse" data-bs-target="#collapseOne">Website 1</button>									
-				</h2>
-				<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#containerTemplate">
-					<div class="card-body bg-dark text-white">
-						<form>
-							<div class="row">
-							
-								<div class="col-md">
-									<label class="form-label" for="username">Username:</label>
-									<input type="text" class="form-control" id="username" placeholder="USERNAME">
-								</div>
-								
-								<div class="col-md">
-									<label class="form-label" for="password">Password:</label>
-									<!-- Password type obfuscates text. It cannot be copied -->
-									<!-- Use JS to switch type to text. -->
-									<input type="password" class="form-control" id="password" placeholder="PASSWORD">
-								</div>
-								
-								<div class="col-md-2">
-								<!-- Show password checkbox triggers function to set password to text-->
-								<label><input type="checkbox" value="">Show Password</label>
-								<button type="button" class="btn btn-secondary">Copy Password</button>
-								</div>
+		<section id="credTemplate">
+			<template>
+				<div class="accordion" id="containerTemplate">
+					<div class="accordion-item">
+						<h2 class="accordion-header" id="headingOne">
+							<button type="button" class="accordion-button collapsed bg-dark text-white" data-bs-toggle="collapse" data-bs-target="#collapseOne">Website 1</button>									
+						</h2>
+						<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#containerTemplate">
+							<div class="card-body bg-dark text-white">
+								<form>
+									<div class="row">
+									
+										<div class="col-md">
+											<label class="form-label" for="username">Username:</label>
+											<input type="text" class="form-control" id="username" placeholder="USERNAME">
+										</div>
+										
+										<div class="col-md">
+											<label class="form-label" for="password">Password:</label>
+											<!-- Password type obfuscates text. It cannot be copied -->
+											<!-- Use JS to switch type to text. -->
+											<input type="password" class="form-control" id="password" placeholder="PASSWORD">
+										</div>
+										
+										<div class="col-md-2">
+										<!-- Show password checkbox triggers function to set password to text-->
+										<label><input type="checkbox" value="">Show Password</label>
+										<button type="button" class="btn btn-secondary">Copy Password</button>
+										</div>
+									</div>
+								</form>
 							</div>
-						</form>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-		</span>
+			</template>
+		</section>
 		
 	</div>
 </body>

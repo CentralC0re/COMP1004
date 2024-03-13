@@ -93,20 +93,30 @@ function signIn(content)
             if (fileLines[i].search("{") != -1)
             {
                 splitLines = fileLines[i].split(":");  // siteNo, username tag, username, etc are now separate
-                siteName = splitLines[0];           // Layout is consistent, provided there are no ":"'s
+                for (let j = 0; j < splitLines.length; j++)
+                {
+                    splitLines[j] = splitLines[j].split(",");   // Layout is consistent, provided ':' or ',' are not used
+                }
+
+                siteName = splitLines[0];
+                // Get left side of splitLines[2] for siteUName 
                 siteUName = splitLines[2];
+                // Get left side of splitLines[2] for sitePWord
                 sitePWord = splitLines[4];
                 console.log(siteName);
                 console.log(siteUName);
                 console.log(sitePWord);
 
                 // COPY AND SET TEMPLATE HERE
+
             }
        }
     }
     else
     {
-        console.error("INVALID CREDENTIALS")    // Make this a paragraph
+        console.error("INVALID CREDENTIALS");    // Make this a paragraph
+        const errPara = document.getElementById("CredError");
+        errPara.removeAttribute("hidden");
     }
 }
 
