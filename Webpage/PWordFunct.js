@@ -4,6 +4,12 @@ window.addEventListener("DOMContentLoaded", (event) => {	// Waits for DOM load
     fileSelect.addEventListener("change",getFile);
 });
 
+function createCredContainer(number)    // Number is used to numerate Id's
+{
+    // CREATES HTML FOR CREDENTIALS
+    // May need to make this using single line creations, but this will make the function VERY long.
+}
+
 function openFile()     // Triggers file selection on sign-in click
 {
     fileSelect.click();
@@ -107,27 +113,25 @@ function signIn(content)
                 console.log(siteUName);
                 console.log(sitePWord);
 
-                // COPY AND SET TEMPLATE HERE
-
+                createCredContainer();  // Creates containers for credentials.
+                
             }
        }
     }
     else
     {
-        console.error("INVALID CREDENTIALS");    // Make this a paragraph
+        console.error("INVALID CREDENTIALS");
         const errPara = document.getElementById("CredError");
         errPara.removeAttribute("hidden");
+        // Ensure that the error message is hidden on successful sign in.
     }
 }
 
 function signOut()
 {
-    // Saves all values and closes file
-}
+    // SAVE VALUES AND CLOSE FILE HERE
 
-function load()
-{
-    // Loads values, uses template and fills it with the relevant values.
+    location.reload();
 }
 
 function updateUser()
@@ -144,10 +148,24 @@ function updatePass()
 
 function showHide()
 {
-    // Triggered on Show Password checked, sets Password Box to general text and back again
+    // Triggered on Show Password checked
+    const pWordBox = document.getElementById("password");    // Requires modification to work for all passwords
+
+    if (pWordBox.getAttribute("type") == "password")
+    {
+        pWordBox.setAttribute("type","text");
+    }
+    else
+    {
+        pWordBox.setAttribute("type","password");
+    }
 }
 
 function copyPass()
 {
-    // Triggered on Copy Password clicked, stores value of Password Box into clipboard
+    // Triggered on Copy Password clicked
+    var pWordBox = document.getElementById("password");    // Adjust to be universal
+    pWordBox.select();
+    pWordBox.setSelectionRange(0,99999);    // May not be necessary
+    navigator.clipboard.writeText(pwordBox.value);
 }
