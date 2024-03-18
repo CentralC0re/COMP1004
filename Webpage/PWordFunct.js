@@ -7,7 +7,105 @@ window.addEventListener("DOMContentLoaded", (event) => {	// Waits for DOM load
 function createCredContainer(number)    // Number is used to numerate Id's
 {
     // CREATES HTML FOR CREDENTIALS
-    // May need to make this using single line creations, but this will make the function VERY long.
+    // Very long, but there does not appear to be an alternative
+    const accordion = document.createElement("div");
+    accordion.className = "accordion";
+    accordion.id = "container" + number;
+
+    const div = document.getElementById("passwordDiv");
+    div.appendChild(accordion);
+
+    const accordItem = document.createElement("div");
+    accordItem.className = "accordion-item";
+    accordion.appendChild(accordItem);
+
+    const accordHead = document.createElement("h2");    // Entry title
+    accordHead.className = "accordion-header";
+    accordHead.id = "heading" + number;
+    accordItem.appendChild(accordHead);
+
+    const accordBtn = document.createElement("button");    // Collapse button
+    accordBtn.type = "button";
+    accordBtn.className = "accordion-button collapsed bg-dark text-white";
+    accordBtn.dataset.bsToggle = "collapse";
+    accordBtn.dataset.bsTarget = "#collapse" + number;
+    accordBtn.textContent = "PLACEHOLDER"                  // This must be set to the entry name
+    accordHead.appendChild(accordBtn);                     // Possibly in the calling function
+
+    const accordCollapse = document.createElement("div");
+    accordCollapse.id = "collapse" + number;               // This must match bsTarget
+    accordCollapse.className = "accordion-collapse collapse";
+    accordCollapse.dataset.bsParent = "#container" + number; // This must match accordion's value
+    accordItem.appendChild(accordCollapse);
+
+    const accordCard = document.createElement("div");
+    accordCard.className = "card-body bg-dark text-white";
+    accordCollapse.appendChild(accordCard);
+
+    const accordForm = document.createElement("form");
+    accordCard.appendChild(accordForm);
+
+    const accordRow = document.createElement("div");
+    accordRow.className = "row";
+    accordForm.appendChild(accordRow);
+
+
+    const colUser = document.createElement("div");  // Columns do not share naming convention, rename?
+    colUser.className = "col-md";
+    accordRow.appendChild(colUser);
+
+    const userLabel = document.createElement("label");
+    userLabel.className = "form-label";
+    userLabel.for = "username" + number;
+    userLabel.innerText = "Username:";
+    colUser.appendChild(userLabel);
+
+    const userInput = document.createElement("input");  // Username textbox, no value yet
+    userInput.type = "text";
+    userInput.className = "form-control";
+    userInput.id = "username" + number;
+    userInput.placeholder = "USERNAME";
+    colUser.appendChild(userInput);
+
+
+    const colPword = document.createElement("div");
+    colPword.className = "col-md";
+    accordRow.appendChild(colPword);
+
+    const pwordLabel = document.createElement("label");
+    pwordLabel.className = "form-label";
+    pwordLabel.for = "password" + number;
+    pwordLabel.innerText = "Password:";
+    colPword.appendChild(pwordLabel);
+
+    const pwordInput = document.createElement("input"); // Password textbox, no value
+    pwordInput.type = "password";       // Note obfuscation, switch to text when shown
+    pwordInput.className = "form-control";
+    pwordInput.id = "password" + number;
+    pwordInput.placeholder = "PASSWORD";
+    colPword.appendChild(pwordInput);
+
+
+    const colBtns = document.createElement("div");
+    colBtns.className = "col-md-2";
+    accordRow.appendChild(colBtns);
+
+    const checkLabel = document.createElement("label");
+    checkLabel.innerText = "Show Password ";
+    colBtns.appendChild(checkLabel);
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = "";
+    checkbox.id = "showWord" + number;
+    checkLabel.appendChild(checkbox);
+
+    const copyBtn = document.createElement("input");
+    copyBtn.type = "button";
+    copyBtn.className = "btn btn-secondary";
+    copyBtn.value = "Copy Password";
+    colBtns.appendChild(copyBtn);
+
 }
 
 function openFile()     // Triggers file selection on sign-in click
@@ -113,8 +211,7 @@ function signIn(content)
                 console.log(siteUName);
                 console.log(sitePWord);
 
-                createCredContainer();  // Creates containers for credentials.
-                
+                createCredContainer(i);  // Creates containers for credentials.
             }
        }
     }
