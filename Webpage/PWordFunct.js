@@ -19,13 +19,13 @@ function createCredContainer(number)    // Number is used to numerate Id's
     accordItem.className = "accordion-item";
     accordion.appendChild(accordItem);
 
-    const accordHead = document.createElement("h2");    // Entry title
+    const accordHead = document.createElement("h2");
     accordHead.className = "accordion-header";
-    accordHead.id = "heading" + number;
     accordItem.appendChild(accordHead);
 
     const accordBtn = document.createElement("button");    // Collapse button
     accordBtn.type = "button";
+    accordBtn.id = "heading" + number;
     accordBtn.className = "accordion-button collapsed bg-dark text-white";
     accordBtn.dataset.bsToggle = "collapse";
     accordBtn.dataset.bsTarget = "#collapse" + number;
@@ -105,7 +105,6 @@ function createCredContainer(number)    // Number is used to numerate Id's
     copyBtn.className = "btn btn-secondary";
     copyBtn.value = "Copy Password";
     colBtns.appendChild(copyBtn);
-
 }
 
 function openFile()     // Triggers file selection on sign-in click
@@ -212,6 +211,15 @@ function signIn(content)
                 console.log(sitePWord);
 
                 createCredContainer(i);  // Creates containers for credentials.
+
+                const heading = document.getElementById("heading"+i);   // Sets values
+                heading.textContent = siteName;
+
+                const username = document.getElementById("username"+i);
+                username.value = siteUName;
+
+                const password = document.getElementById("password"+i);
+                password.value = sitePWord;
             }
        }
     }
