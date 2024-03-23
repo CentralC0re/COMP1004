@@ -29,8 +29,8 @@ function createCredContainer(number)    // Number is used to numerate Id's
     accordBtn.className = "accordion-button collapsed bg-dark text-white";
     accordBtn.dataset.bsToggle = "collapse";
     accordBtn.dataset.bsTarget = "#collapse" + number;
-    accordBtn.textContent = "PLACEHOLDER"                  // This must be set to the entry name
-    accordHead.appendChild(accordBtn);                     // Possibly in the calling function
+    accordBtn.textContent = "PLACEHOLDER"
+    accordHead.appendChild(accordBtn);
 
     const accordCollapse = document.createElement("div");
     accordCollapse.id = "collapse" + number;               // This must match bsTarget
@@ -98,12 +98,14 @@ function createCredContainer(number)    // Number is used to numerate Id's
     checkbox.type = "checkbox";
     checkbox.value = "";
     checkbox.id = "showWord" + number;
+    checkbox.onclick = function() {showHide(number);};
     checkLabel.appendChild(checkbox);
 
     const copyBtn = document.createElement("input");
     copyBtn.type = "button";
     copyBtn.className = "btn btn-secondary";
     copyBtn.value = "Copy Password";
+    copyBtn.onclick = function() {copyPass(number);};
     colBtns.appendChild(copyBtn);
 }
 
@@ -251,10 +253,10 @@ function updatePass()
     // Overwrites value of Password for the entry, then saves
 }
 
-function showHide()
+function showHide(numerator)
 {
     // Triggered on Show Password checked
-    const pWordBox = document.getElementById("password");    // Requires modification to work for all passwords
+    const pWordBox = document.getElementById("password"+numerator);    // Requires modification to work for all passwords
 
     if (pWordBox.getAttribute("type") == "password")
     {
@@ -266,11 +268,10 @@ function showHide()
     }
 }
 
-function copyPass()
+function copyPass(numerator)
 {
     // Triggered on Copy Password clicked
-    var pWordBox = document.getElementById("password");    // Adjust to be universal
-    pWordBox.select();
-    pWordBox.setSelectionRange(0,99999);    // May not be necessary
-    navigator.clipboard.writeText(pwordBox.value);
+    var passVal = document.getElementById("password"+numerator);
+    passVal.select();
+    navigator.clipboard.writeText(passVal.value);
 }
