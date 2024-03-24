@@ -4,7 +4,7 @@ window.addEventListener("DOMContentLoaded", (event) => {	// Waits for DOM load
     fileSelect.addEventListener("change",getFile);
 });
 
-function createCredContainer(number)    // Number is used to numerate Id's
+function createCredContainer(number, empty)    // Number is used to numerate Id's
 {
     // CREATES HTML FOR CREDENTIALS
     // Very long, but there does not appear to be an alternative
@@ -29,7 +29,14 @@ function createCredContainer(number)    // Number is used to numerate Id's
     accordBtn.className = "accordion-button collapsed bg-dark text-white";
     accordBtn.dataset.bsToggle = "collapse";
     accordBtn.dataset.bsTarget = "#collapse" + number;
-    accordBtn.textContent = "PLACEHOLDER"
+    if (!empty)
+    {
+        accordBtn.textContent = "PLACEHOLDER";
+    }
+    else    // For credential creation
+    {
+        accordBtn.textContent = "New Entry";
+    }
     accordHead.appendChild(accordBtn);
 
     const accordCollapse = document.createElement("div");
@@ -44,6 +51,25 @@ function createCredContainer(number)    // Number is used to numerate Id's
 
     const accordForm = document.createElement("form");
     accordCard.appendChild(accordForm);
+
+    if (empty)
+    {
+        const nameRow = document.createElement("div");
+        nameRow.className = "row";
+        accordForm.appendChild(nameRow);
+
+        const name = document.createElement("label");
+        name.className = "form-label";
+        name.for = "name" + number;
+        name.innerText = "Site Name:";
+        nameRow.appendChild(name);
+
+        const nameInput = document.createElement("input");
+        nameInput.className = "form-control";
+        nameInput.id = "name" + number;
+        nameInput.placeholder = "SITE NAME";
+        nameRow.appendChild(nameInput);
+    }
 
     const accordRow = document.createElement("div");
     accordRow.className = "row";
@@ -107,6 +133,16 @@ function createCredContainer(number)    // Number is used to numerate Id's
     copyBtn.value = "Copy Password";
     copyBtn.onclick = function() {copyPass(number);};
     colBtns.appendChild(copyBtn);
+
+    if (empty)
+    {
+        const createBtn = document.createElement("input");
+        createBtn.type = "button";
+        createBtn.className = "btn btn-primary";
+        createBtn.value = "Create Credentials";
+        createBtn.onclick = function() {updateFile(true)};
+        colBtns.appendChild(createBtn);
+    }
 }
 
 function openFile()     // Triggers file selection on sign-in click
@@ -203,16 +239,18 @@ function signIn(content)
                     splitLines[j] = splitLines[j].split(",");   // Layout is consistent, provided ':' or ',' are not used
                 }
 
-                siteName = splitLines[0];
-                // Get left side of splitLines[2] for siteUName 
-                siteUName = splitLines[2];
-                // Get left side of splitLines[2] for sitePWord
-                sitePWord = splitLines[4];
-                console.log(siteName);
-                console.log(siteUName);
-                console.log(sitePWord);
+                siteName = splitLines[0][0].slice(2,splitLines[0][0].length-1);
+                siteUName = splitLines[2][0].slice(1,splitLines[2][0].length-1);
+                if (splitLines[3][0].charAt(splitLines[3][0].length-2) == "}")
+                {
+                    sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-3);
+                }
+                else
+                {
+                    sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-2);
+                }
 
-                createCredContainer(i);  // Creates containers for credentials.
+                createCredContainer(i, false);  // Creates containers for credentials.
 
                 const heading = document.getElementById("heading"+i);   // Sets values
                 heading.textContent = siteName;
@@ -224,6 +262,7 @@ function signIn(content)
                 password.value = sitePWord;
             }
        }
+       createCredContainer(fileLines.length, true);   // TEMP
     }
     else
     {
@@ -234,23 +273,19 @@ function signIn(content)
     }
 }
 
-function signOut()
+function signOut()  // No need to save updates, this should be automatic.
 {
-    // SAVE VALUES AND CLOSE FILE HERE
-
     location.reload();
 }
 
-function updateUser()
+function updateFile(newCred)    // newCred is bool, true if triggered by createBtn
 {
-    // Triggered on Username Box edited and clicked off of
-    // Overwrites value of Username for the entry, then saves
-}
+    // Triggered on any box edited and clicked off of
+    // Overwrites passwords.json
 
-function updatePass()
-{
-    // Triggered on Password Box edited and clicked off of
-    // Overwrites value of Password for the entry, then saves
+    // If newCred, call createCredContainer with empty as true
+    // Additionally, save the contents of New Entry, as this would not normally be done
+    // May modify the old New Entry box, to prevent confusion.
 }
 
 function showHide(numerator)
