@@ -115,27 +115,31 @@ function createCredContainer(number, empty)    // Number is used to numerate Id'
     const colBtns = document.createElement("div");
     colBtns.className = "col-md-2";
     accordRow.appendChild(colBtns);
-
-    const checkLabel = document.createElement("label");
-    checkLabel.innerText = "Show Password ";
-    colBtns.appendChild(checkLabel);
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.value = "";
-    checkbox.id = "showWord" + number;
-    checkbox.onclick = function() {showHide(number);};
-    checkLabel.appendChild(checkbox);
-
-    const copyBtn = document.createElement("input");
-    copyBtn.type = "button";
-    copyBtn.className = "btn btn-secondary";
-    copyBtn.value = "Copy Password";
-    copyBtn.onclick = function() {copyPass(number);};
-    colBtns.appendChild(copyBtn);
-
-    if (empty)
+    if (!empty)
     {
+        const checkLabel = document.createElement("label");
+        checkLabel.innerText = "Show Password ";
+        colBtns.appendChild(checkLabel);
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = "";
+        checkbox.id = "showWord" + number;
+        checkbox.onclick = function() {showHide(number);};
+        checkLabel.appendChild(checkbox);
+
+        const copyBtn = document.createElement("input");
+        copyBtn.type = "button";
+        copyBtn.className = "btn btn-secondary";
+        copyBtn.value = "Copy Password";
+        copyBtn.onclick = function() {copyPass(number);};
+        colBtns.appendChild(copyBtn);
+    }
+    else
+    {
+        const spacingPara = document.createElement("p");    // Poor button spacing otherwise
+        colBtns.appendChild(spacingPara);
+
         const createBtn = document.createElement("input");
         createBtn.type = "button";
         createBtn.className = "btn btn-primary";
