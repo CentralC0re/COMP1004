@@ -60,6 +60,7 @@ function createCredContainer(number, empty)    // Number is used to numerate Id'
 
         const name = document.createElement("label");
         name.className = "form-label";
+        name.id = "nameLbl" + number;
         name.for = "name" + number;
         name.innerText = "Site Name:";
         nameRow.appendChild(name);
@@ -113,6 +114,7 @@ function createCredContainer(number, empty)    // Number is used to numerate Id'
 
 
     const colBtns = document.createElement("div");
+    colBtns.id = "btnCol" + number;
     colBtns.className = "col-md-2";
     accordRow.appendChild(colBtns);
     if (!empty)
@@ -142,9 +144,10 @@ function createCredContainer(number, empty)    // Number is used to numerate Id'
 
         const createBtn = document.createElement("input");
         createBtn.type = "button";
+        createBtn.id = "create" + number;
         createBtn.className = "btn btn-primary";
         createBtn.value = "Create Credentials";
-        createBtn.onclick = function() {updateFile(true)};
+        createBtn.onclick = function() {newCred(number)};
         colBtns.appendChild(createBtn);
     }
 }
@@ -208,10 +211,6 @@ function signIn(content)
 
     loadUName = extractDetails(fileLines[1]);
     loadPWord = extractDetails(fileLines[2]);
-    
-
-    console.log(loadUName);            // Valid output
-    console.log(loadPWord);
 
     // Textboxes are: SignInUser and SignInPword
     // Almost certainly requires function to wait for DOM load.
@@ -221,13 +220,7 @@ function signIn(content)
 
     if (UName == loadUName && PWord == loadPWord)
     {
-        /* Sign-In success
-        Display message(?) and load other values
-        Need to:
-            Figure out where EOF is
-            Load up to EOF (new function or loop extractDetails?)
-        */
-       // Format: "siteNo": {"username":"UNAME","password":"PWORD"},
+       // Format: "siteName": {"username":"UNAME","password":"PWORD"},
 
        var splitLines;
        var siteName;
@@ -254,42 +247,107 @@ function signIn(content)
                     sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-2);
                 }
 
-                createCredContainer(i, false);  // Creates containers for credentials.
+                createCredContainer(i-2, false);  // Creates containers for credentials.
 
-                const heading = document.getElementById("heading"+i);   // Sets values
+                const heading = document.getElementById("heading"+(i-2));   // Sets values
                 heading.textContent = siteName;
 
-                const username = document.getElementById("username"+i);
+                const username = document.getElementById("username"+(i-2));
                 username.value = siteUName;
 
-                const password = document.getElementById("password"+i);
+                const password = document.getElementById("password"+(i-2));
                 password.value = sitePWord;
             }
        }
-       createCredContainer(fileLines.length, true);   // TEMP
+       createCredContainer(fileLines.length-3, true);
+
+       document.getElementById("saveBtn").removeAttribute("hidden");
     }
     else
-    {
+    {   // On sign-in error, the user must reload the page, cause unknown (scope and event listeners?)
         console.error("INVALID CREDENTIALS");
-        const errPara = document.getElementById("CredError");
-        errPara.removeAttribute("hidden");
-        // Ensure that the error message is hidden on successful sign in.
+        document.getElementById("CredError").removeAttribute("hidden");
     }
 }
 
-function signOut()  // No need to save updates, this should be automatic.
+function signOut()
 {
+    updateFile();
     location.reload();
 }
 
-function updateFile(newCred)    // newCred is bool, true if triggered by createBtn
+function newCred(number)
 {
-    // Triggered on any box edited and clicked off of
-    // Overwrites passwords.json
+    const titleLbl = document.getElementById("nameLbl" + number);
+    titleLbl.remove();
+    const title = document.getElementById("name" + number);
+    document.getElementById("heading" + number).textContent = title.value;
+    title.remove();
 
-    // If newCred, call createCredContainer with empty as true
-    // Additionally, save the contents of New Entry, as this would not normally be done
-    // May modify the old New Entry box, to prevent confusion.
+    const createBtn = document.getElementById("create" + number);
+    createBtn.remove();
+
+    const colBtns = document.getElementById("btnCol" + number);
+
+    const checkLabel = document.createElement("label");
+    checkLabel.innerText = "Show Password ";
+    colBtns.appendChild(checkLabel);
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = "";
+    checkbox.id = "showWord" + number;
+    checkbox.onclick = function() {showHide(number);};
+    checkLabel.appendChild(checkbox);
+
+    const copyBtn = document.createElement("input");
+    copyBtn.type = "button";
+    copyBtn.className = "btn btn-secondary";
+    copyBtn.value = "Copy Password";
+    copyBtn.onclick = function() {copyPass(number);};
+    colBtns.appendChild(copyBtn);
+
+    createCredContainer(number+1, true);
+}
+
+function updateFile()
+{
+    // Triggered when Update File button pressed. 
+    let fileContents = "{\n";
+
+    // Store sign-in name and password
+    fileContents += "\t\"username\": \"" + document.getElementById("SignInUser").value + "\",\n";
+    fileContents += "\t\"password\": \"" + document.getElementById("SignInPword").value + "\",\n";
+
+    var numerator = 1;  // Find number of entries
+    while (document.getElementById("heading"+numerator) != null)
+    {
+        numerator++;
+    }
+
+    for (var i = 1; i < numerator-1; i++)   // Store entries
+    {
+        fileContents += "\t\"" + document.getElementById("heading" + i).innerText + "\":{";
+        fileContents += "\"username\":\"" + document.getElementById("username" + i).value + "\",";
+        fileContents += "\"password\":\"" + document.getElementById("password" + i).value + "\"}";
+        if (i != numerator - 2)
+        {
+            fileContents += ",\n";
+        }
+    }
+    fileContents += "\n}";
+
+    var file = new File(["\ufeff"+fileContents], "passwords.json", {type:"application/json"});
+
+    var fileReference = window.URL.createObjectURL(file);
+
+    var downloadLink = document.createElement("a");
+    downloadLink.hidden = true;
+    downloadLink.href = fileReference;
+    downloadLink.download = file.name;
+    downloadLink.click();
+    
+    window.URL.revokeObjectURL(fileReference);
 }
 
 function showHide(numerator)

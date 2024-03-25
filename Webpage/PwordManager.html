@@ -29,7 +29,7 @@
 				<!-- A password reset would go here, but it's not viable while maintaining security. -->
 				<!-- (No way to email reset, would have to do it locally) -->
 
-				<p hidden id="CredError">ERROR: Invalid Credentials</p>
+				<p hidden id="CredError">ERROR: Invalid credentials, please reload</p>
 				<span hidden><input type="file" id="fileSelect" accept=".json"></span>
 			</div>
 		</form>
@@ -69,7 +69,7 @@
 				</div>
 			</div>
 		</div>
-		
+		<button type="button" class="btn btn-success" id="saveBtn"onclick="updateFile()" hidden>Save Changes</button>
 	</div>
 </body>
 </html>
