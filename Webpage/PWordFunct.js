@@ -225,10 +225,10 @@ function signIn(content)
     // go to the function for the link.
     // Digest produces a hashed value, in this case with the SHA-256 function.
     var UNamePromise = crypto.subtle.digest('SHA-256', hashBuffer)
-    UNamePromise.then((values) =>   // This was originally handled with a function as it is repeated.
+    UNamePromise.then((UNameValues) =>   // This was originally handled with a function as it is repeated.
     {                               // The function was not asynchronous, causing issues.
         UName = "";
-        var uintArr = new Uint8Array(values);
+        var uintArr = new Uint8Array(UNameValues);
         for (var i = 0; i < uintArr.length; i++)
         {
             UName += uintArr[i];
@@ -237,10 +237,10 @@ function signIn(content)
 
         hashBuffer = str2ab(PWord);
         var PWordPromise = crypto.subtle.digest('SHA-256', hashBuffer)
-        PWordPromise.then((values) =>
+        PWordPromise.then((PwordValues) =>
         {
             PWord = "";
-            var uintArr = new Uint8Array(values);
+            var uintArr = new Uint8Array(PwordValues);
             for (var i = 0; i < uintArr.length; i++)
             {
                 PWord += uintArr[i];
@@ -251,6 +251,10 @@ function signIn(content)
             {
                 // Format: "siteName": {"username":"UNAME","password":"PWORD"},
 
+                TESTGEN();
+                
+                var encKey = str2ab(document.getElementById("SignInKey").value);
+                // encKey is not the correct type, make it so.
                 var splitLines;
                 var siteName;
                 var siteUName;
@@ -265,8 +269,19 @@ function signIn(content)
                             splitLines[j] = splitLines[j].split(",");   // Layout is consistent, provided ':' or ',' are not used
                         }
 
-                        siteName = splitLines[0][0].slice(2,splitLines[0][0].length-1);
-                        siteUName = splitLines[2][0].slice(1,splitLines[2][0].length-1);
+                        // DECRYPTION STARTS HERE
+                        
+                        var siteNameCipher = splitLines[0][0].slice(2,splitLines[0][0].length-1);
+                        var siteNameProm = crypto.subtle.decrypt({name: "AES-CTR", counter:"10", length:64}, encKey, siteNameCipher);
+
+                        siteNameProm.then((NameValues) =>
+                        {
+                            siteName = ab2str(NameValues);
+                        var siteUNameCipher = splitLines[2][0].slice(1,splitLines[2][0].length-1);
+                        var siteUNameProm = crypto.subtle.decrypt({name: "AES-CTR", counter:"10", length:64}, encKey, siteUNameCipher);
+                        siteUNameProm.then((SiteUNameValues) =>
+                        {
+                            siteUName = ab2str(SiteUNameValues);
                         if (splitLines[3][0].charAt(splitLines[3][0].length-2) == "}")
                         {
                             sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-3);
@@ -275,6 +290,7 @@ function signIn(content)
                         {
                             sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-2);
                         }
+                        // DECRYPTION ENDS HERE
 
                         createCredContainer(i-2, false);  // Creates containers for credentials.
 
@@ -286,16 +302,24 @@ function signIn(content)
 
                         const password = document.getElementById("password"+(i-2));
                         password.value = sitePWord;
+
+                        if (i == fileLines.length-1)    // Stops this from running early.
+                        {
+                            createCredContainer(fileLines.length-3, true);
+                        document.getElementById("saveBtn").removeAttribute("hidden");
+                        }
+                    });
+                    });
                     }
                 }
-                createCredContainer(fileLines.length-3, true);
-                document.getElementById("saveBtn").removeAttribute("hidden");
+                
             }
             else
             {   // On sign-in error, the user must reload the page, cause unknown (scope and event listeners?)
                 console.error("INVALID CREDENTIALS");
                 document.getElementById("CredError").removeAttribute("hidden");
             }
+
         });
     });
 }
@@ -383,9 +407,12 @@ function updateFile()
 
             for (var i = 1; i < numerator-1; i++)   // Store entries
             {
+                // ENCRYPTION STARTS HERE
+                // Key generation:
                 fileContents += "\t\"" + document.getElementById("heading" + i).innerText + "\":{";
                 fileContents += "\"username\":\"" + document.getElementById("username" + i).value + "\",";
                 fileContents += "\"password\":\"" + document.getElementById("password" + i).value + "\"}";
+                // ENCRYPTION ENDS HERE
                 if (i != numerator - 2)
                 {
                     fileContents += ",\n";
@@ -431,7 +458,24 @@ function copyPass(numerator)
     navigator.clipboard.writeText(passVal.value);
 }
 
-// NOTE: This function is taken from https://developer.chrome.com/blog/how-to-convert-arraybuffer-to-and-from-string
+const TESTGEN = async () =>
+{
+    // NOTE TO SELF: Output value is AB, can convert to string (ab2str) for provision to user.
+    //               Convert back to AB on input, hope it is compatible with crypto.subtle.decrypt
+    const exampleKey = await crypto.subtle.generateKey(
+        {   
+          name: "AES-GCM",
+          length: 256,
+        },
+        true,
+        ["encrypt", "decrypt"],
+      );
+    const promise = await crypto.subtle.exportKey("raw",exampleKey);
+    console.log(promise);
+
+}
+
+// NOTE: Both functions below are taken from https://developer.chrome.com/blog/how-to-convert-arraybuffer-to-and-from-string
 // as no libraries seem to exist which I can use to convert from string to array buffer, and array
 // buffer is too complex for me to use.
 function str2ab(str) {
@@ -441,4 +485,7 @@ function str2ab(str) {
     bufView[i] = str.charCodeAt(i);
     }
     return buf;
+}
+function ab2str(buf) {
+    return String.fromCharCode.apply(null, new Uint16Array(buf));
 }
