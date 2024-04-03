@@ -1,3 +1,5 @@
+// TODO: RESTRUCTURE FUNCTIONS
+
 // Listeners go up here
 window.addEventListener("DOMContentLoaded", (event) => {	// Waits for DOM load
     const fileSelect = document.getElementById("fileSelect");
@@ -216,58 +218,67 @@ function signIn(content)
     // Almost certainly requires function to wait for DOM load.
     var UName = document.getElementById("SignInUser").value;
     var PWord = document.getElementById("SignInPword").value;
+    
+    var hashBuffer = str2ab(UName);     // This is an array buffer. The function is from the chrome developer
+                                        // website, go to the function for the link.
+    // Digest produces a hashed value, in this case with the SHA-256 function.
+    UName = hashToString(crypto.subtle.digest('SHA-256', hashBuffer));
 
+    hashBuffer = str2ab(PWord);
+    PWord = hashToString(crypto.subtle.digest('SHA-256', hashBuffer));
 
-    if (UName == loadUName && PWord == loadPWord)
+    new Promise(resolve => setTimeout(resolve, 500)).then(() =>
     {
-       // Format: "siteName": {"username":"UNAME","password":"PWORD"},
+        if (UName == loadUName && PWord == loadPWord)
+        {
+            // Format: "siteName": {"username":"UNAME","password":"PWORD"},
 
-       var splitLines;
-       var siteName;
-       var siteUName;
-       var sitePWord;
-       for (let i = 3; i < fileLines.length; i++)   // for all lines, take data.
-       {
-            if (fileLines[i].search("{") != -1)
+            var splitLines;
+            var siteName;
+            var siteUName;
+            var sitePWord;
+            for (let i = 3; i < fileLines.length; i++)   // for all lines, take data.
             {
-                splitLines = fileLines[i].split(":");  // siteNo, username tag, username, etc are now separate
-                for (let j = 0; j < splitLines.length; j++)
+                if (fileLines[i].search("{") != -1)
                 {
-                    splitLines[j] = splitLines[j].split(",");   // Layout is consistent, provided ':' or ',' are not used
+                    splitLines = fileLines[i].split(":");  // siteNo, username tag, username, etc are now separate
+                    for (let j = 0; j < splitLines.length; j++)
+                    {
+                        splitLines[j] = splitLines[j].split(",");   // Layout is consistent, provided ':' or ',' are not used
+                    }
+
+                    siteName = splitLines[0][0].slice(2,splitLines[0][0].length-1);
+                    siteUName = splitLines[2][0].slice(1,splitLines[2][0].length-1);
+                    if (splitLines[3][0].charAt(splitLines[3][0].length-2) == "}")
+                    {
+                        sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-3);
+                    }
+                    else
+                    {
+                        sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-2);
+                    }
+
+                    createCredContainer(i-2, false);  // Creates containers for credentials.
+
+                    const heading = document.getElementById("heading"+(i-2));   // Sets values
+                    heading.textContent = siteName;
+
+                    const username = document.getElementById("username"+(i-2));
+                    username.value = siteUName;
+
+                    const password = document.getElementById("password"+(i-2));
+                    password.value = sitePWord;
                 }
-
-                siteName = splitLines[0][0].slice(2,splitLines[0][0].length-1);
-                siteUName = splitLines[2][0].slice(1,splitLines[2][0].length-1);
-                if (splitLines[3][0].charAt(splitLines[3][0].length-2) == "}")
-                {
-                    sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-3);
-                }
-                else
-                {
-                    sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-2);
-                }
-
-                createCredContainer(i-2, false);  // Creates containers for credentials.
-
-                const heading = document.getElementById("heading"+(i-2));   // Sets values
-                heading.textContent = siteName;
-
-                const username = document.getElementById("username"+(i-2));
-                username.value = siteUName;
-
-                const password = document.getElementById("password"+(i-2));
-                password.value = sitePWord;
             }
-       }
-       createCredContainer(fileLines.length-3, true);
-
-       document.getElementById("saveBtn").removeAttribute("hidden");
-    }
-    else
-    {   // On sign-in error, the user must reload the page, cause unknown (scope and event listeners?)
-        console.error("INVALID CREDENTIALS");
-        document.getElementById("CredError").removeAttribute("hidden");
-    }
+            createCredContainer(fileLines.length-3, true);
+            document.getElementById("saveBtn").removeAttribute("hidden");
+        }
+        else
+        {   // On sign-in error, the user must reload the page, cause unknown (scope and event listeners?)
+            console.error("INVALID CREDENTIALS");
+            document.getElementById("CredError").removeAttribute("hidden");
+        }
+    });
 }
 
 function signOut()
@@ -316,7 +327,17 @@ function updateFile()
     let fileContents = "{\n";
 
     // Store sign-in name and password
-    fileContents += "\t\"username\": \"" + document.getElementById("SignInUser").value + "\",\n";
+    fileContents += "\t\"username\": \"";
+
+    var hashBuffer = str2ab(document.getElementById("SignInUser").value);
+    var hashedValue = crypto.subtle.digest("SHA-256", hashBuffer);
+    var hashArr = hashedValue[2][2];
+    let hashAsString = "";
+    for(var i = 0; i < hashArr.length; i++)
+    {
+        hashAsString += hashArr[i];
+    }
+    fileContents += hashAsString + "\",\n";
     fileContents += "\t\"password\": \"" + document.getElementById("SignInPword").value + "\",\n";
 
     var numerator = 1;  // Find number of entries
@@ -371,4 +392,31 @@ function copyPass(numerator)
     var passVal = document.getElementById("password"+numerator);
     passVal.select();
     navigator.clipboard.writeText(passVal.value);
+}
+
+function hashToString(promiseInput)
+{
+    promiseInput.then((values) =>
+    {
+        // Values is array buffer layer of promise.
+        var uintArr = new Uint8Array(values);
+        let returnString = "";
+        for (var i = 0; i < uintArr.length; i++)
+        {
+            returnString += uintArr[i];
+        }
+        return returnString;    // This is hash as a string.
+    })
+}
+
+// NOTE: This function is taken from https://developer.chrome.com/blog/how-to-convert-arraybuffer-to-and-from-string
+// as no libraries seem to exist which I can use to convert from string to array buffer, and array
+// buffer is too complex for me to use.
+function str2ab(str) {
+    var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+    var bufView = new Uint16Array(buf);
+    for (var i=0, strLen=str.length; i < strLen; i++) {
+    bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
 }
