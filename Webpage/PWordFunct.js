@@ -1,5 +1,4 @@
 // TODO: Restructure functions
-//       Add a readme file
 
 // Listeners go up here
 window.addEventListener("DOMContentLoaded", (event) => {	// Waits for DOM load
@@ -191,7 +190,7 @@ function extractDetails(line)   // Gets the value from an identifier
     return tArr[0];
 }
 
-function signIn(content)
+async function signIn(content)
 {
     const splitLineExp = new RegExp("\n");
     var numLines = 0;
@@ -224,11 +223,11 @@ function signIn(content)
     // This is an array buffer. The function is from the chrome developer website,
     // go to the function for the link.
     // Digest produces a hashed value, in this case with the SHA-256 function.
-    var UNamePromise = crypto.subtle.digest('SHA-256', hashBuffer)
-    UNamePromise.then((UNameValues) =>   // This was originally handled with a function as it is repeated.
-    {                               // The function was not asynchronous, causing issues.
+    var UNamePromise = await crypto.subtle.digest('SHA-256', hashBuffer)
+    //UNamePromise.then((UNameValues) =>   // This was originally handled with a function as it is repeated.
+    //{                               // The function was not asynchronous, causing issues.
         UName = "";
-        var uintArr = new Uint8Array(UNameValues);
+        var uintArr = new Uint8Array(UNamePromise);    // formerly UNameValues
         for (var i = 0; i < uintArr.length; i++)
         {
             UName += uintArr[i];
@@ -236,11 +235,11 @@ function signIn(content)
     
 
         hashBuffer = str2ab(PWord);
-        var PWordPromise = crypto.subtle.digest('SHA-256', hashBuffer)
-        PWordPromise.then((PwordValues) =>
-        {
+        var PWordPromise = await crypto.subtle.digest('SHA-256', hashBuffer)
+        //PWordPromise.then((PwordValues) =>
+        //{
             PWord = "";
-            var uintArr = new Uint8Array(PwordValues);
+            var uintArr = new Uint8Array(PWordPromise);  // formerly PwordValues
             for (var i = 0; i < uintArr.length; i++)
             {
                 PWord += uintArr[i];
@@ -252,9 +251,11 @@ function signIn(content)
                 // Format: "siteName": {"username":"UNAME","password":"PWORD"},
 
                 TESTGEN();
-                
-                var encKey = str2ab(document.getElementById("SignInKey").value);
-                // encKey is not the correct type, make it so.
+                var keyBuffer = str2ab(document.getElementById("SignInKey").value)
+                var encKey = await crypto.subtle.importKey("raw", keyBuffer, "AES-CTR", true, ["encrypt", "decrypt"]);
+                // Should give a key now.
+                // On the downside, it's probably not a valid input, and the error being generated
+                // is for a line that contains only }
                 var splitLines;
                 var siteName;
                 var siteUName;
@@ -272,16 +273,16 @@ function signIn(content)
                         // DECRYPTION STARTS HERE
                         
                         var siteNameCipher = splitLines[0][0].slice(2,splitLines[0][0].length-1);
-                        var siteNameProm = crypto.subtle.decrypt({name: "AES-CTR", counter:"10", length:64}, encKey, siteNameCipher);
+                        var siteNameProm = await crypto.subtle.decrypt({name: "AES-CTR", counter:"10", length:64}, encKey, siteNameCipher);
 
-                        siteNameProm.then((NameValues) =>
-                        {
-                            siteName = ab2str(NameValues);
+                        //siteNameProm.then((NameValues) =>
+                        //{
+                            siteName = ab2str(siteNameProm);  // formerly NameValues
                         var siteUNameCipher = splitLines[2][0].slice(1,splitLines[2][0].length-1);
                         var siteUNameProm = crypto.subtle.decrypt({name: "AES-CTR", counter:"10", length:64}, encKey, siteUNameCipher);
-                        siteUNameProm.then((SiteUNameValues) =>
-                        {
-                            siteUName = ab2str(SiteUNameValues);
+                        //siteUNameProm.then((SiteUNameValues) =>
+                        //{
+                            siteUName = ab2str(siteUNameProm);    // formerly SiteUNameValues
                         if (splitLines[3][0].charAt(splitLines[3][0].length-2) == "}")
                         {
                             sitePWord = splitLines[3][0].slice(1,splitLines[3][0].length-3);
@@ -308,8 +309,8 @@ function signIn(content)
                             createCredContainer(fileLines.length-3, true);
                         document.getElementById("saveBtn").removeAttribute("hidden");
                         }
-                    });
-                    });
+                   // });
+                    //});
                     }
                 }
                 
@@ -320,8 +321,8 @@ function signIn(content)
                 document.getElementById("CredError").removeAttribute("hidden");
             }
 
-        });
-    });
+        //});
+    //});
 }
 
 function signOut()
@@ -472,7 +473,8 @@ const TESTGEN = async () =>
       );
     const promise = await crypto.subtle.exportKey("raw",exampleKey);
     console.log(promise);
-
+    // EXAMPLE KEY:
+        // 17319265618673702362382211101074474251751932331461751691091221619620415616023023723652
 }
 
 // NOTE: Both functions below are taken from https://developer.chrome.com/blog/how-to-convert-arraybuffer-to-and-from-string
