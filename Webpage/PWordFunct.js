@@ -162,7 +162,7 @@ function openFile()     // Triggers file selection on sign-in click
 function getFile()
 {
     let content = "";
-    const [file] = document.querySelector("input[type=file]").files;    // Better than the deprecated
+    const [file] = document.getElementById("fileSelect").files;    // Better than the deprecated
     const reader = new FileReader();                                    // option.
   
     reader.addEventListener(
@@ -175,8 +175,8 @@ function getFile()
     );
   
     if (file) { // Was a file selected?
-      reader.readAsText(file);
-    }
+      reader.readAsText(file);  // Also, why is this below the event listener?
+    }                           // I can't remember why I did this, async?
     // No need for else error - user may have cancelled
 }
 
@@ -251,11 +251,18 @@ async function signIn(content)
                 // Format: "siteName": {"username":"UNAME","password":"PWORD"},
 
                 TESTGEN();
-                var keyBuffer = str2ab(document.getElementById("SignInKey").value)
-                var encKey = await crypto.subtle.importKey("raw", keyBuffer, "AES-CTR", true, ["encrypt", "decrypt"]);
-                // Should give a key now.
-                // On the downside, it's probably not a valid input, and the error being generated
-                // is for a line that contains only }
+                let encJSON = {};
+                const blob = new Blob([document.getElementById("SignInKey").files], {type:"application/json"});
+                const reader = new FileReader(); 
+
+                reader.addEventListener("load", () => {
+                    console.log(reader.result);
+                    encStr = JSON.parse(reader.result);
+                }, false);
+                reader.readAsText(blob);        // Code does not wait for event fire, encJSON is when imported.
+
+                var encKey = await crypto.subtle.importKey("jwk", encJSON, "AES-CTR", true, ["encrypt", "decrypt"]);
+
                 var splitLines;
                 var siteName;
                 var siteUName;
@@ -471,7 +478,7 @@ const TESTGEN = async () =>
         true,
         ["encrypt", "decrypt"],
       );
-    const promise = await crypto.subtle.exportKey("raw",exampleKey);
+    const promise = await crypto.subtle.exportKey("jwk",exampleKey);
     console.log(promise);
     // EXAMPLE KEY:
         // 17319265618673702362382211101074474251751932331461751691091221619620415616023023723652
