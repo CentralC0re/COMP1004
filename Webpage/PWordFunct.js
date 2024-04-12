@@ -257,7 +257,7 @@ async function signIn(content)
 
                 reader.addEventListener("load", () => {
                     console.log(reader.result);
-                    encStr = JSON.parse(reader.result);
+                    encJSON = JSON.parse(reader.result);
                 }, false);
                 reader.readAsText(blob);        // Code does not wait for event fire, encJSON is when imported.
 
